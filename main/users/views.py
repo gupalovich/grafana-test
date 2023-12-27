@@ -4,8 +4,21 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, RedirectView, UpdateView
+from django.shortcuts import redirect
+
+from .tasks import trigger_long_task, trigger_long_fail_task
+
 
 User = get_user_model()
+
+
+def task_trigger_view(request):
+    trigger_long_task.delay()
+    return redirect('users:detail', username=request.user.username)
+
+def task_trigger_fail_view(request):
+    trigger_long_fail_task.delay()
+    return redirect('users:detail', username=request.user.username)
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
