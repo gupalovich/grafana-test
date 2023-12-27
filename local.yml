@@ -3,6 +3,8 @@ version: '3'
 volumes:
   main_local_postgres_data: {}
   main_local_postgres_data_backups: {}
+  main_local_prometheus_data: {}
+  main_local_grafana_data: {}
 
 services:
   django: &django
@@ -35,21 +37,21 @@ services:
     env_file:
       - ./.envs/.local/.postgres
 
-  docs:
-    image: main_local_docs
-    container_name: main_local_docs
-    build:
-      context: .
-      dockerfile: ./compose/local/docs/Dockerfile
-    env_file:
-      - ./.envs/.local/.django
-    volumes:
-      - ./docs:/docs:z
-      - ./config:/app/config:z
-      - ./main:/app/main:z
-    ports:
-      - '9000:9000'
-    command: /start-docs
+  # docs:
+  #   image: main_local_docs
+  #   container_name: main_local_docs
+  #   build:
+  #     context: .
+  #     dockerfile: ./compose/local/docs/Dockerfile
+  #   env_file:
+  #     - ./.envs/.local/.django
+  #   volumes:
+  #     - ./docs:/docs:z
+  #     - ./config:/app/config:z
+  #     - ./main:/app/main:z
+  #   ports:
+  #     - '9000:9000'
+  #   command: /start-docs
 
   redis:
     image: redis:6
@@ -82,3 +84,26 @@ services:
     ports:
       - '5555:5555'
     command: /start-flower
+
+  prometheus:
+    image: prom/prometheus
+    container_name: main_local_prometheus
+    restart: 'no'
+    volumes:
+      - main_local_prometheus_data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+  
+  grafana:
+    image: grafana/grafana
+    container_name: main_local_grafana
+    environment:
+      GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource"
+    restart: 'no'
+    volumes:
+      - main_local_grafana_data:/var/lib/grafana
+    ports:
+      - 3000:3000
+    depends_on:
+      - prometheus

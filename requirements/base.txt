@@ -17,3 +17,8 @@ django-allauth==0.59.0  # https://github.com/pennersr/django-allauth
 django-crispy-forms==2.1  # https://github.com/django-crispy-forms/django-crispy-forms
 crispy-bootstrap5==2023.10  # https://github.com/django-crispy-forms/crispy-bootstrap5
 django-redis==5.4.0  # https://github.com/jazzband/django-redis
+
+
+# Celery
+# ------------------------------------------------------------------------------
+prometheus-client==0.19.0  # https://github.com/prometheus/client_python
