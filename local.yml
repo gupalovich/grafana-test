@@ -88,7 +88,6 @@ services:
   prometheus:
     image: prom/prometheus
     container_name: main_local_prometheus
-    restart: 'no'
     volumes:
       - main_local_prometheus_data:/prometheus
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
@@ -100,7 +99,6 @@ services:
     container_name: main_local_grafana
     environment:
       GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource"
-    restart: 'no'
     volumes:
       - main_local_grafana_data:/var/lib/grafana
     ports:

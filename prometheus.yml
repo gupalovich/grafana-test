@@ -2,16 +2,16 @@ global:
   scrape_interval:     15s
   evaluation_interval: 15s
 
-# scrape_configs:
-#   - job_name: prometheus
-#     static_configs:
-#       - targets: ['localhost:9090']
-#   - job_name: flower
-#     static_configs:
-#       - targets: ['localhost:5555']
-
 scrape_configs:
   - job_name: prometheus
-    metrics_path: '/prometheus-xyzabc/metrics'
     static_configs:
-      - targets: ['127.0.0.1:8006']
+      - targets: ['localhost:9090']
+  - job_name: flower
+    static_configs:
+      - targets: ['flower:5555']
+
+# scrape_configs:
+#   - job_name: prometheus
+#     metrics_path: '/prometheus-xyzabc/metrics'
+#     static_configs:
+#       - targets: ['127.0.0.1:8006']
