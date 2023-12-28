@@ -67,16 +67,6 @@ services:
     ports: []
     command: /start-celeryworker
 
-  celeryworker1:
-    <<: *django
-    image: main_local_celeryworker1
-    container_name: main_local_celeryworker1
-    depends_on:
-      - redis
-      - postgres
-    ports: []
-    command: /start-celeryworker
-
   celerybeat:
     <<: *django
     image: main_local_celerybeat

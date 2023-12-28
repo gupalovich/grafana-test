@@ -1,0 +1,120 @@
+groups:
+- name: django
+  rules:
+  - alert: DjangoMigrationsUnapplied
+    annotations:
+      dashboard_url: "https://grafana.com/d/django-overview-jkwq/django-overview?var-job={{ $labels.job }}"
+      description: "The job {{ $labels.job }} has unapplied migrations."
+      summary: "Django has unapplied migrations."
+    expr: |
+      sum(
+        django_migrations_unapplied_total{
+          job=~"django"
+        }
+      ) by (namespace, job)
+      > 0
+    for: "15m"
+    labels:
+      severity: "warning"
+  - alert: DjangoDatabaseException
+    annotations:
+      dashboard_url: "https://grafana.com/d/django-overview-jkwq/django-overview?var-job={{ $labels.job }}"
+      description: "The job {{ $labels.job }} has hit the database exception {{ $labels.type }}."
+      summary: "Django database exception."
+    expr: |
+      sum (
+        increase(
+          django_db_errors_total{
+            job=~"django"
+          }[10m]
+        )
+      ) by (type, namespace, job)
+      > 0
+    labels:
+      severity: "info"
+  - alert: DjangoHighHttp4xxErrorRate
+    annotations:
+      dashboard_url: "https://grafana.com/d/django-requests-by-view-jkwq/django-requests-by-view?var-job={{ $labels.job }}&var-view={{ $labels.view }}"
+      description: "More than 5% HTTP requests with status 4xx for {{ $labels.job }}/{{ $labels.view }} the past 5m."
+      summary: "Django high HTTP 4xx error rate."
+    expr: |
+      sum(
+        rate(
+          django_http_responses_total_by_status_view_method_total{
+            job=~"django",
+            status=~"^4.*",
+            view!~"<unnamed view>|health_check:health_check_home|prometheus-django-metrics"
+          }[5m]
+        )
+      )  by (namespace, job, view)
+      /
+      sum(
+        rate(
+          django_http_responses_total_by_status_view_method_total{
+            job=~"django",
+            view!~"<unnamed view>|health_check:health_check_home|prometheus-django-metrics"
+          }[5m]
+        )
+      )  by (namespace, job, view)
+      * 100 > 5
+    for: "1m"
+    labels:
+      severity: "warning"
+  - alert: DjangoHighHttp5xxErrorRate
+    annotations:
+      dashboard_url: "https://grafana.com/d/django-requests-by-view-jkwq/django-requests-by-view?var-job={{ $labels.job }}&var-view={{ $labels.view }}"
+      description: "More than 5% HTTP requests with status 5xx for {{ $labels.job }}/{{ $labels.view }} the past 5m."
+      summary: "Django high HTTP 5xx error rate."
+    expr: |
+      sum(
+        rate(
+          django_http_responses_total_by_status_view_method_total{
+            job=~"django",
+            status=~"^5.*",
+            view!~"<unnamed view>|health_check:health_check_home|prometheus-django-metrics"
+          }[5m]
+        )
+      )  by (namespace, job, view)
+      /
+      sum(
+        rate(
+          django_http_responses_total_by_status_view_method_total{
+            job=~"django",
+            view!~"<unnamed view>|health_check:health_check_home|prometheus-django-metrics"
+          }[5m]
+        )
+      )  by (namespace, job, view)
+      * 100 > 5
+    for: "1m"
+    labels:
+      severity: "warning"
+
+- name: celery
+  rules:
+  - alert: CeleryWorkerOffline
+    expr: flower_worker_online == 0
+    for: "2m"
+    labels:
+      severity: "critical"
+      context: "celery-worker"
+    annotations:
+      summary: "Celery worker offline"
+      description: "Celery worker {{ $labels.worker }} has been offline for more than 2 minutes."
+  - alert: TaskFailureRatioTooHigh
+    expr: (sum(avg_over_time(flower_events_total{type="task-failed"}[15m])) by (task) / sum(avg_over_time(flower_events_total{type=~"task-failed|task-succeeded"}[15m])) by (task)) * 100 > 1
+    for: "5m"
+    labels:
+      severity: "critical"
+      context: "celery-task"
+    annotations:
+      summary: "Task Failure Ratio Too High."
+      description: "Average task failure ratio for task {{ $labels.task }} is {{ $value }}."
+  - alert: TaskPrefetchTimeTooHigh
+    expr: sum(avg_over_time(flower_task_prefetch_time_seconds[15m])) by (task, worker) > 1
+    for: "5m"
+    labels:
+      severity: "critical"
+      context: "celery-task"
+    annotations:
+      summary: "Average Task Prefetch Time Too High."
+      description: "Average task prefetch time at worker for task {{ $labels.task }} and worker {{ $labels.worker }} is {{ $value }}."
