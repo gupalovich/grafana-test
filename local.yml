@@ -57,15 +57,25 @@ services:
     image: redis:6
     container_name: main_local_redis
 
-  celeryworker:
+  celeryworker_high_priority:
     <<: *django
     image: main_local_celeryworker
-    container_name: main_local_celeryworker
+    container_name: main_local_celeryworker_high_priority
     depends_on:
       - redis
       - postgres
     ports: []
-    command: /start-celeryworker
+    command: sh -c "celery -A config.celery_app worker -l info -Q high_priority,default"
+
+  celeryworker_low_priority:
+    <<: *django
+    image: main_local_celeryworker
+    container_name: main_local_celeryworker_low_priority
+    depends_on:
+      - redis
+      - postgres
+    ports: []
+    command: sh -c "celery -A config.celery_app worker -l info -Q low_priority,high_priority"
 
   celerybeat:
     <<: *django

@@ -1,24 +1,29 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, RedirectView, UpdateView
-from django.shortcuts import redirect
 
-from .tasks import trigger_long_task, trigger_long_fail_task
-
+from .tasks import trigger_long_fail_task, trigger_long_task, trigger_short_task
 
 User = get_user_model()
 
 
-def task_trigger_view(request):
+def task_trigger_long_view(request):
     trigger_long_task.delay()
-    return redirect('users:detail', username=request.user.username)
+    return redirect("users:detail", username=request.user.username)
+
+
+def task_trigger_short_view(request):
+    trigger_short_task.delay()
+    return redirect("users:detail", username=request.user.username)
+
 
 def task_trigger_fail_view(request):
     trigger_long_fail_task.delay()
-    return redirect('users:detail', username=request.user.username)
+    return redirect("users:detail", username=request.user.username)
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):

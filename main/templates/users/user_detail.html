@@ -3,40 +3,37 @@
 {% load static %}
 
 {% block title %}
-  User: 
-  
-    {{ object.username }}
-  
-  
+  User:
+  {{ object.username }}
 {% endblock title %}
 {% block content %}
   <div class="container">
     <div class="row">
       <div class="col-sm-12">
-        <h2>
-        
-        
-          {{ object.username }}
-        
-      </h2>
-      {% if object.name %}
-        <p>{{ object.name }}</p>
-      {% endif %}
-    </div>
-  </div>
-  {% if object == request.user %}
-    <!-- Action buttons -->
-    <div class="row">
-      <div class="col-sm-12">
-        <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">My Info</a>
-        <a class="btn btn-primary"
-        href="{% url 'account_email' %}"
-        role="button">E-Mail</a>
-        <a class="btn btn-primary" href="{% url 'users:task-trigger' %}" role="button">Long Task</a>
-        <a class="btn btn-primary" href="{% url 'users:task-trigger-fail' %}" role="button">Long Task Fail</a>
+        <h2>{{ object.username }}</h2>
+        {% if object.name %}<p>{{ object.name }}</p>{% endif %}
       </div>
     </div>
-    <!-- End Action buttons -->
-  {% endif %}
-</div>
+    {% if object == request.user %}
+      <!-- Action buttons -->
+      <div class="row">
+        <div class="col-sm-12">
+          <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">My Info</a>
+          <a class="btn btn-primary"
+             href="{% url 'account_email' %}"
+             role="button">E-Mail</a>
+          <a class="btn btn-primary"
+             href="{% url 'users:task-trigger-long' %}"
+             role="button">Long Task</a>
+          <a class="btn btn-primary"
+             href="{% url 'users:task-trigger-short' %}"
+             role="button">Short Task</a>
+          <a class="btn btn-primary"
+             href="{% url 'users:task-trigger-fail' %}"
+             role="button">Fail Task</a>
+        </div>
+      </div>
+      <!-- End Action buttons -->
+    {% endif %}
+  </div>
 {% endblock content %}
