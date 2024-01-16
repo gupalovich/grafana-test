@@ -75,7 +75,7 @@ services:
       - redis
       - postgres
     ports: []
-    command: sh -c "celery -A config.celery_app worker -l info --queues=default_queue --concurrency=2 --hostname=default_queue_worker@%h"
+    command: sh -c "celery -A config.celery_app worker -l info --queues=default_queue --concurrency=2 --hostname=default_queue_worker@%h --without-mingle"
 
   mail_worker:
     <<: *django
@@ -85,7 +85,7 @@ services:
       - redis
       - postgres
     ports: []
-    command: sh -c "celery -A config.celery_app worker -l info --queues=mail_queue --concurrency=1 --hostname=mail_queue_worker@%h"
+    command: sh -c "celery -A config.celery_app worker -l info --queues=mail_queue --concurrency=1 --hostname=mail_queue_worker@%h --without-mingle"
 
   photo_worker:
     <<: *django
@@ -95,7 +95,7 @@ services:
       - redis
       - postgres
     ports: []
-    command: sh -c "celery -A config.celery_app worker -l info --queues=photo_queue --concurrency=4 --hostname=photo_queue_worker@%h"
+    command: sh -c "celery -A config.celery_app worker -l info --queues=photo_queue --concurrency=4 --hostname=photo_queue_worker@%h --without-mingle"
 
   celerybeat:
     <<: *django

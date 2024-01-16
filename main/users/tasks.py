@@ -12,7 +12,7 @@ User = get_user_model()
 def trigger_long_task(self):
     queue_name = self.request.delivery_info["routing_key"]
 
-    time.sleep(30)
+    time.sleep(10)
 
     return queue_name
 
