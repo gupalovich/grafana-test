@@ -8,16 +8,16 @@ from config import celery_app
 User = get_user_model()
 
 
-@celery_app.task(bind=True, queue="low_priority")
+@celery_app.task(bind=True, queue="photo_queue")
 def trigger_long_task(self):
     queue_name = self.request.delivery_info["routing_key"]
 
-    time.sleep(random.randint(5, 10))
+    time.sleep(30)
 
     return queue_name
 
 
-@celery_app.task(bind=True, queue="high_priority")
+@celery_app.task(bind=True, queue="mail_queue")
 def trigger_short_task(self):
     queue_name = self.request.delivery_info["routing_key"]
 

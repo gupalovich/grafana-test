@@ -57,25 +57,45 @@ services:
     image: redis:6
     container_name: main_local_redis
 
-  celeryworker_high_priority:
-    <<: *django
-    image: main_local_celeryworker
-    container_name: main_local_celeryworker_high_priority
-    depends_on:
-      - redis
-      - postgres
-    ports: []
-    command: sh -c "celery -A config.celery_app worker -l info -Q high_priority,default"
+  # celeryworker:
+  #   <<: *django
+  #   image: main_local_celeryworker
+  #   container_name: main_local_celeryworker
+  #   depends_on:
+  #     - redis
+  #     - postgres
+  #   ports: []
+  #   command: sh -c "celery -A config.celery_app worker -l info -Q high_priority,default,low_priority -c 1"
 
-  celeryworker_low_priority:
+  default_worker:
     <<: *django
     image: main_local_celeryworker
-    container_name: main_local_celeryworker_low_priority
+    container_name: default_worker
     depends_on:
       - redis
       - postgres
     ports: []
-    command: sh -c "celery -A config.celery_app worker -l info -Q low_priority,high_priority"
+    command: sh -c "celery -A config.celery_app worker -l info --queues=default_queue --concurrency=2 --hostname=default_queue_worker@%h"
+
+  mail_worker:
+    <<: *django
+    image: main_local_celeryworker
+    container_name: mail_worker
+    depends_on:
+      - redis
+      - postgres
+    ports: []
+    command: sh -c "celery -A config.celery_app worker -l info --queues=mail_queue --concurrency=1 --hostname=mail_queue_worker@%h"
+
+  photo_worker:
+    <<: *django
+    image: main_local_celeryworker
+    container_name: photo_worker
+    depends_on:
+      - redis
+      - postgres
+    ports: []
+    command: sh -c "celery -A config.celery_app worker -l info --queues=photo_queue --concurrency=4 --hostname=photo_queue_worker@%h"
 
   celerybeat:
     <<: *django

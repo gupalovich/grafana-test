@@ -10,11 +10,11 @@ app = Celery("main")
 app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 
-app.conf.task_default_queue = "default"
+app.conf.task_default_queue = "default_queue"
 app.conf.task_queues = (
-    Queue("default", routing_key="default"),
-    Queue("high_priority", routing_key="high_priority"),
-    Queue("low_priority", routing_key="low_priority"),
+    Queue("default_queue", routing_key="default_queue"),
+    Queue("mail_queue", routing_key="mail_queue"),
+    Queue("photo_queue", routing_key="photo_queue"),
 )
 
 app.conf.broker_transport_options = {
