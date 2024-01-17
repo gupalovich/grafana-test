@@ -67,7 +67,7 @@ services:
   #   ports: []
   #   command: sh -c "celery -A config.celery_app worker -l info -Q high_priority,default,low_priority -c 1"
 
-  default_worker:
+  default_worker: &default_worker
     <<: *django
     image: main_local_celeryworker
     container_name: default_worker
@@ -78,23 +78,13 @@ services:
     command: sh -c "celery -A config.celery_app worker -l info --queues=default_queue --concurrency=2 --hostname=default_queue_worker@%h --without-mingle"
 
   mail_worker:
-    <<: *django
-    image: main_local_celeryworker
+    <<: *default_worker
     container_name: mail_worker
-    depends_on:
-      - redis
-      - postgres
-    ports: []
     command: sh -c "celery -A config.celery_app worker -l info --queues=mail_queue --concurrency=1 --hostname=mail_queue_worker@%h --without-mingle"
 
   photo_worker:
-    <<: *django
-    image: main_local_celeryworker
+    <<: *default_worker
     container_name: photo_worker
-    depends_on:
-      - redis
-      - postgres
-    ports: []
     command: sh -c "celery -A config.celery_app worker -l info --queues=photo_queue --concurrency=4 --hostname=photo_queue_worker@%h --without-mingle"
 
   celerybeat:
